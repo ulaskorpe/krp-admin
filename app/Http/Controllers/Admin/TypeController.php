@@ -20,7 +20,7 @@ class TypeController extends Controller
     {
         $types = Type::orderByDesc('id')->get();
 
-        return view('admin_panel.type_list', [
+        return view('admin_panel.types.type_list', [
             'types' => $types,
         ]);
     }
@@ -30,7 +30,7 @@ class TypeController extends Controller
      */
     public function create(): View
     {
-        return view('admin_panel.type_form', [
+        return view('admin_panel.types.type_form', [
             'type' => new Type(['single' => false]),
             'formAction' => route('sudo.types.store'),
             'isEdit' => false,
@@ -56,7 +56,7 @@ class TypeController extends Controller
      */
     public function edit(Type $type): View
     {
-        return view('admin_panel.type_form', [
+        return view('admin_panel.types.type_form', [
             'type' => $type,
             'formAction' => route('sudo.types.update', $type),
             'isEdit' => true,

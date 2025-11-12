@@ -55,7 +55,7 @@ Route::group(['prefix'=>'admin-panel' ],function (){
 
 
         Route:: group([
-            'middleware' => ['checkSudo'],
+           'middleware' => ['checkSudo'],
             'prefix' => 'sudo',
             'as' => 'sudo.'
         ],function (){

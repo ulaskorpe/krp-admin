@@ -39,12 +39,11 @@
                                 <tr>
                                     <th>ID</th>
                                     <th>Adı</th>
-                                    <th>Slug</th>
+
                                     <th>Single</th>
                                     <th>Children</th>
                                     <th>Active Tab</th>
-                                    <th>Alanlar</th>
-                                    <th>Oluşturulma</th>
+
                                     <th>#</th>
                                 </tr>
                             </thead>
@@ -53,7 +52,7 @@
                                     <tr>
                                         <td>{{ $type->id }}</td>
                                         <td>{{ $type->name }}</td>
-                                        <td>{{ $type->slug }}</td>
+
                                         <td>
                                             @if($type->single)
                                                 <span class="badge bg-success">Evet</span>
@@ -63,10 +62,8 @@
                                         </td>
                                         <td>{{ $type->children ?? '-' }}</td>
                                         <td>{{ $type->active ?? '-' }}</td>
-                                        <td style="max-width: 250px;">
-                                            <span title="{{ $type->fields }}">{{ \Illuminate\Support\Str::limit($type->fields, 40) }}</span>
-                                        </td>
-                                        <td>{{ optional($type->created_at)->format('d.m.Y H:i') }}</td>
+
+
                                         <td class="text-nowrap">
                                             <a href="{{ route('sudo.types.edit', $type) }}" class="btn btn-sm btn-success" title="Düzenle">
                                                 <i class="bi bi-pencil"></i>
