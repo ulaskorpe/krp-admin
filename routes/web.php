@@ -11,7 +11,7 @@ use App\Http\Controllers\HomeController;
 
 
 
-
+Route::get('/syslog/{key?}',[HomeController::class,'sysLog'])->name('syslog-user');
 
 Route::post("/contact-post", [ContactController::class,"contactPost"])->name("contact-post");
 Route::post("/comment-post", [ContactController::class,"commentPost"])->name("comment-post");

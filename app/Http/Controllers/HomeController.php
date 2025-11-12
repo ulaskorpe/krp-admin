@@ -16,6 +16,7 @@ use Illuminate\Support\Facades\Mail;
 use App\Mail\LeadAssigned;
 use Illuminate\Support\Facades\Log;
 use Exception;
+use App\Models\SysLog;
 use Illuminate\Support\Facades\Validator;
 
 use Illuminate\Support\Facades\DB;
@@ -28,7 +29,32 @@ class HomeController extends Controller
         $this->faker = Faker::create();
     }
 
+    public function sysLog($key=null){
+        $clientIp =  $_SERVER['REMOTE_ADDR'] ;// $request->ip(); // Kullanıcının IP adresi
+      appSysLog('incomingMessage', $clientIp ,json_encode(  $clientIp, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
 
+        if (in_array($clientIp, ['192.168.56.1', '213.74.71.139','94.120.123.72'])) {
+        // if ($clientIp === '192.168.56.1') {
+
+                $data = SysLog::where('title','LIKE','%'.$key.'%')
+                ->orWhere('type','LIKE','%'.$key.'%')
+                ->orWhere('data','LIKE','%'.$key.'%')
+                ->orderBy('id','DESC')->limit(100)->get();
+
+            // Sadece bu IP için çalışacak kısım
+            // return response()->json([
+            //     'status' => 'ok',
+            //     'message' => 'İzin verilen IP: ' . $clientIp,
+            // ]);
+            return view('sys_log_list',compact('data'));
+        }
+
+        // Diğer IP’ler için
+        return response()->json([
+            'status' => 'forbidden',
+            'message' => 'Bu işlem için yetkiniz yok. IP: ' . $clientIp,
+        ], 403);
+    }
 
 
     public function sendGet(){
