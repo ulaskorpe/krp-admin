@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Auth;
-use App\Models\Admin;
+//use App\Models\Admin;
 use App\Models\Role;
 use Illuminate\Support\Facades\Cookie;
 

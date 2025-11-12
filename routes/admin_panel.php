@@ -52,6 +52,10 @@ Route::group(['prefix'=>'admin-panel' ],function (){
         Route::post('/logout',[AuthController::class,'logout'])->name('logout');
 
 
-//'lang','type_id','count','title','second_title','prologue','content','link','image','second_image'
+        Route:: group([ 'middleware'=>['checkSudo'],'prefix'=>'sudo'],function (){
+                // todo create sudo routes here
+        });
+
+
     });
 });
