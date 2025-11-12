@@ -3,15 +3,31 @@
     <!-- main menu content-->
     <div class="main-menu-content">
       <ul id="main-menu-navigation" data-menu="menu-navigation" class="navigation navigation-main">
+
+        @if( $data['role']['name']  == 'sudo')
+        <li class=" nav-item"><a href="{{route('dashboard')}}">
+
+            <i class="icon-key22"></i><span data-i18n="nav.dash.main"  class="menu-title">SUDO Panel </span><span class="tag hidden tag tag-danger tag-pill float-xs-right mr-2">5</span></a>
+            <ul class="menu-content">
+              <li><a href="#" class="menu-item">Content Types </a></li>
+              <li><a href="#" class="menu-item">Admins </a></li>
+              <li><a href="#" class="menu-item">Roles </a></li>
+
+            </ul>
+          </li>
+        @endif
+
         <li class=" nav-item"><a href="{{route('dashboard')}}">
 
           <i class="icon-home3"></i><span data-i18n="nav.dash.main"  class="menu-title">AnaSayfa </span><span class="tag hidden tag tag-danger tag-pill float-xs-right mr-2">5</span></a>
+
+
+
           <ul class="menu-content">
 
             <li @if($type->active =='dashboard') class="active" @endif><a href="{{route('content-list','top_banner')}}" class="menu-item">Künye</a></li>
 
-
-            <li><a href="{{route('content-list','slider')}}" class="menu-item">Slider</a></li>
+            <li><a href="{{route('content-list','slider')}}" class="menu-item">Slider  </a></li>
             <li><a href="{{route('content-list','slider_second')}}" class="menu-item">Slider#2</a></li>
             <li><a href="{{route('content-list','quotes')}}" class="menu-item">Alıntılar</a></li>
 

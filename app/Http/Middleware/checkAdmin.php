@@ -8,6 +8,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Admin;
+use App\Models\Role;
 use Illuminate\Support\Facades\Cookie;
 
 //use App\Models\User;
@@ -34,7 +35,11 @@ class checkAdmin
         }else{
             // echo Auth::id();
             // echo Session::get('admin_code');
-             view()->share(['data'=>123]);
+            $data = [
+                'role'=> Role::find(auth()->user()->role_id)
+            ];
+
+             view()->share(['data'=>$data]);
         }
 
 
