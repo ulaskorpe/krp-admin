@@ -509,11 +509,10 @@ public function countSelect($cat_id,Type $type,$post_id = 0){
                   File::delete(public_path('post_images/'.$post->$img_field));
                   File::delete(public_path('post_images/icon_'.$post->$img_field));
 
-                  if(!empty($type['resize_array'])){
-                    $resize_array = $this->service->resizeArray($type);
-                    foreach($resize_array as $arr ){
-                        File::delete(public_path("post_images"   . "/".$arr[0]."x".$arr[1].$post->$img_field));
-                    }
+                  $resize_array = $this->service->resizeArray($type);
+                  foreach($resize_array as $arr ){
+                      File::delete(public_path("post_images"   . "/".$arr[0]."x".$arr[1].$post->$img_field));
+                  }
                 }
 
                         $post->$img_field = $img;

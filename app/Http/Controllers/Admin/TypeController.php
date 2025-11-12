@@ -37,6 +37,7 @@ class TypeController extends Controller
             'isEdit' => false,
             'fieldOptions' => $this->getPostFieldOptions(),
             'selectedFields' => [],
+            'resizeFields' => [],
         ]);
     }
 
@@ -45,9 +46,10 @@ class TypeController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
-        $validated = $this->validatedData($request);
+        [$validated, $resizeFields] = $this->validatedData($request);
 
-        Type::create($validated);
+        $type = Type::create($validated);
+        $this->syncResizeFields($type, $resizeFields);
 
         return redirect()
             ->route('sudo.types.index')
@@ -59,23 +61,30 @@ class TypeController extends Controller
      */
     public function edit(Type $type): View
     {
+        $type->loadMissing('resizeFields');
+
         return view('admin_panel.types.type_form', [
             'type' => $type,
             'formAction' => route('sudo.types.update', $type),
             'isEdit' => true,
             'fieldOptions' => $this->getPostFieldOptions(),
             'selectedFields' => $this->parseFields($type->fields),
+            'resizeFields' => $type->resizeFields->map(fn ($field) => [
+                'width' => $field->width,
+                'height' => $field->height,
+            ])->toArray(),
         ]);
     }
 
     /**
      * Update the specified resource in storage.
+     *
      */
     public function update(Request $request, Type $type): RedirectResponse
     {
-        $validated = $this->validatedData($request, $type);
-
+        [$validated, $resizeFields] = $this->validatedData($request, $type);
         $type->update($validated);
+        $this->syncResizeFields($type, $resizeFields);
 
         return redirect()
             ->route('sudo.types.index')
@@ -97,12 +106,14 @@ class TypeController extends Controller
 
     /**
      * Validate incoming request data for creating/updating types.
+     *
+     * @return array{0: array<string, mixed>, 1: array<int, array{width:int,height:int}>}
      */
     protected function validatedData(Request $request, ?Type $type = null): array
     {
-        $slugSource = $request->input('slug') ?: $request->input('name');
+
         $request->merge([
-            'slug' => Str::slug((string) $slugSource),
+            'slug' => Str::slug((string) $request->input('name')),
         ]);
 
         $fieldsInput = $request->input('fields');
@@ -111,7 +122,34 @@ class TypeController extends Controller
                 'fields' => $this->parseFields($fieldsInput),
             ]);
         }
+        $resizeFieldsInput = $request->input('resize_fields');
+        if (is_array($resizeFieldsInput)) {
+            $filteredResizeFields = collect($resizeFieldsInput)
+                ->map(function ($field) {
+                    if (!is_array($field)) {
+                        return null;
+                    }
 
+                    $width = isset($field['width']) ? trim((string) $field['width']) : '';
+                    $height = isset($field['height']) ? trim((string) $field['height']) : '';
+
+                    if ($width === '' && $height === '') {
+                        return null;
+                    }
+
+                    return [
+                        'width' => $width,
+                        'height' => $height,
+                    ];
+                })
+                ->filter()
+                ->values()
+                ->all();
+
+            $request->merge([
+                'resize_fields' => $filteredResizeFields,
+            ]);
+        }
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'slug' => [
@@ -122,7 +160,9 @@ class TypeController extends Controller
             ],
             'fields' => ['nullable', 'array'],
             'fields.*' => ['string'],
-            'resize_array' => ['nullable', 'string'],
+            'resize_fields' => ['nullable', 'array'],
+            'resize_fields.*.width' => ['required_with:resize_fields', 'integer', 'min:1'],
+            'resize_fields.*.height' => ['required_with:resize_fields', 'integer', 'min:1'],
             'single' => ['nullable', 'boolean'],
             'children' => ['nullable', 'string', 'max:255'],
             'active' => ['nullable', 'string', 'max:255'],
@@ -131,11 +171,30 @@ class TypeController extends Controller
         $validated['single'] = $request->boolean('single');
         $fields = $validated['fields'] ?? null;
         $validated['fields'] = $this->stringifyFields(is_array($fields) ? $fields : null);
-        $validated['resize_array'] = $validated['resize_array'] !== null ? trim($validated['resize_array']) : null;
         $validated['children'] = $validated['children'] !== null ? trim($validated['children']) : null;
         $validated['active'] = $validated['active'] !== null ? trim($validated['active']) : null;
 
-        return $validated;
+        $resizeFields = collect($validated['resize_fields'] ?? [])
+        ->map(function ($field) {
+            $width = isset($field['width']) ? (int) $field['width'] : null;
+            $height = isset($field['height']) ? (int) $field['height'] : null;
+
+            if ($width === null || $height === null) {
+                return null;
+            }
+
+            return [
+                'width' => $width,
+                'height' => $height,
+            ];
+        })
+        ->filter()
+        ->values()
+        ->all();
+
+    unset($validated['resize_fields']);
+
+    return [$validated, $resizeFields];
     }
 
     /**
@@ -180,5 +239,14 @@ class TypeController extends Controller
             ->implode(',');
 
         return $items !== '' ? $items : null;
+    }
+
+    protected function syncResizeFields(Type $type, array $resizeFields): void
+    {
+        $type->resizeFields()->delete();
+
+        if (!empty($resizeFields)) {
+            $type->resizeFields()->createMany($resizeFields);
+        }
     }
 }

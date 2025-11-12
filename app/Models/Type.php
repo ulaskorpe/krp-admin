@@ -15,7 +15,6 @@ class Type extends Model
         'name',
         'slug',
         'fields',
-        'resize_array',
         'single',
         'children',
         'active',
@@ -26,5 +25,9 @@ class Type extends Model
     public function posts()
     {
         return $this->hasMany(Post::class);
+    }
+    public function resizeFields()
+    {
+        return $this->hasMany(ResizeField::class);
     }
 }

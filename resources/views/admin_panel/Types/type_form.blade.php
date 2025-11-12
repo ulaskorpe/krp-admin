@@ -37,14 +37,7 @@
                             </div>
                         </div>
 
-                        <div class="row form-group">
-                            <div class="col col-md-3">
-                                <label for="slug" class="form-control-label"><b>Slug</b></label>
-                            </div>
-                            <div class="col-12 col-md-9">
-                                <input type="text" name="slug" id="slug" class="form-control" value="{{ old('slug', $type->slug) }}" placeholder="Otomatik oluşturmak için boş bırakabilirsiniz">
-                            </div>
-                        </div>
+
                         @php
                         $fieldOptions = $fieldOptions ?? [];
                         $selectedFields = collect(old('fields', $selectedFields ?? []))
@@ -52,6 +45,22 @@
                             ->filter()
                             ->values()
                             ->all();
+
+                            $resizeFieldValues = collect(old('resize_fields', $resizeFields ?? []))
+                            ->map(function ($field) {
+                                return [
+                                    'width' => is_array($field) ? ($field['width'] ?? '') : '',
+                                    'height' => is_array($field) ? ($field['height'] ?? '') : '',
+                                ];
+                            })
+                            ->filter(function ($field) {
+                                return ($field['width'] !== '') || ($field['height'] !== '');
+                            })
+                            ->values()
+                            ->all();
+                        if (empty($resizeFieldValues)) {
+                            $resizeFieldValues = [['width' => '', 'height' => '']];
+                        }
                     @endphp
 
                         <div class="row form-group">
@@ -78,11 +87,32 @@
 
                         <div class="row form-group">
                             <div class="col col-md-3">
-                                <label for="resize_array" class="form-control-label"><b>Resize Array</b></label>
+                                <label class="form-control-label"><b>Resize Alanları</b></label>
                             </div>
                             <div class="col-12 col-md-9">
-                                <textarea name="resize_array" id="resize_array" rows="3" class="form-control" placeholder="Örn: 400x400@fit|800x600@crop">{{ old('resize_array', $type->resize_array) }}</textarea>
-                                <small class="form-text text-muted">Görseller için yeniden boyutlandırma tanımlarını girin.</small>
+
+                                <div id="resize-fields-wrapper" data-count="{{ count($resizeFieldValues) }}">
+                                    @foreach ($resizeFieldValues as $index => $field)
+                                        <div class="resize-field-row card card-body mb-2" data-index="{{ $index }}">
+                                            <div class="row g-2 align-items-end">
+                                                <div class="col-md-5">
+                                                    <label class="form-control-label" for="resize_width_{{ $index }}">Genişlik</label>
+                                                    <input type="number" name="resize_fields[{{ $index }}][width]" id="resize_width_{{ $index }}" class="form-control" value="{{ $field['width'] }}" min="1" placeholder="Örn: 300">
+                                                </div>
+                                                <div class="col-md-5">
+                                                    <label class="form-control-label" for="resize_height_{{ $index }}">Yükseklik</label>
+                                                    <input type="number" name="resize_fields[{{ $index }}][height]" id="resize_height_{{ $index }}" class="form-control" value="{{ $field['height'] }}" min="1" placeholder="Örn: 300">
+                                                </div>
+                                                <div class="col-md-2 d-flex align-items-end">
+                                                    <button type="button" class="btn btn-outline-danger w-100" data-action="remove-resize-field">Sil</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                </div>
+                                <button type="button" class="btn btn-sm btn-outline-primary" id="add-resize-field">Resize Alanı Ekle</button>
+                                <small class="form-text text-muted">Her satır, üretilecek bir görsel boyutunu temsil eder.</small>
+
                             </div>
                         </div>
 
@@ -124,10 +154,75 @@
                                 </button>
                             </div>
                         </div>
+                        <template id="resize-field-template">
+                            <div class="resize-field-row card card-body mb-2" data-index="__INDEX__">
+                                <div class="row g-2 align-items-end">
+                                    <div class="col-md-5">
+                                        <label class="form-control-label" for="resize_width___INDEX__">Genişlik</label>
+                                        <input type="number" name="resize_fields[__INDEX__][width]" id="resize_width___INDEX__" class="form-control" min="1" placeholder="Örn: 300">
+                                    </div>
+                                    <div class="col-md-5">
+                                        <label class="form-control-label" for="resize_height___INDEX__">Yükseklik</label>
+                                        <input type="number" name="resize_fields[__INDEX__][height]" id="resize_height___INDEX__" class="form-control" min="1" placeholder="Örn: 300">
+                                    </div>
+                                    <div class="col-md-2 d-flex align-items-end">
+                                        <button type="button" class="btn btn-outline-danger w-100" data-action="remove-resize-field">Sil</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </template>
                     </form>
                 </div>
             </div>
         </div>
     </div>
 </div>
+<script>
+    (function () {
+        const wrapper = document.getElementById('resize-fields-wrapper');
+        if (!wrapper) {
+            return;
+        }
+
+        const template = document.getElementById('resize-field-template');
+        const addButton = document.getElementById('add-resize-field');
+        let counter = Number(wrapper.dataset.count || 0);
+
+        const createRow = () => {
+            if (!template) {
+                return;
+            }
+
+            const content = template.innerHTML.replace(/__INDEX__/g, counter);
+            counter += 1;
+
+            const container = document.createElement('div');
+            container.innerHTML = content.trim();
+            const row = container.firstElementChild;
+            if (row) {
+                wrapper.appendChild(row);
+            }
+        };
+
+        addButton?.addEventListener('click', (event) => {
+            event.preventDefault();
+            createRow();
+        });
+
+        wrapper.addEventListener('click', (event) => {
+            const target = event.target;
+            if (!(target instanceof HTMLElement)) {
+                return;
+            }
+
+            if (target.matches('[data-action="remove-resize-field"]')) {
+                event.preventDefault();
+                const row = target.closest('.resize-field-row');
+                if (row) {
+                    row.remove();
+                }
+            }
+        });
+    })();
+</script>
 @endsection

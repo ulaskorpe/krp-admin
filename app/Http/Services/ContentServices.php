@@ -16,12 +16,13 @@ class ContentServices
     private $allowed_array = ['jpg', 'jpeg','png','gif','svg'];
 
     public function resizeArray(Type $type){
-        $resize_array = [];
-        $arr = explode('|',$type['resize_array']);
-        foreach($arr as $item){
-            $resize_array[] = explode('@',$item);
-        }
-        return $resize_array;
+        $resizeFields = $type->relationLoaded('resizeFields')
+        ? $type->resizeFields
+        : $type->resizeFields()->get();
+
+    return $resizeFields
+        ->map(fn ($field) => [(int) $field->width, (int) $field->height])
+        ->toArray();
     }
 
     public function create_image(Request $request ,$field='image',Type $type ){
@@ -45,7 +46,7 @@ class ContentServices
             $file->move($path, $filename);
             $path = public_path("post_images"  . "/" . $filename);
                 if($ext!='svg'){
-          
+
                 $resizedImage = Image::make($path)->resize(200, null, function ($constraint) {
                     $constraint->aspectRatio();
                 });
@@ -53,8 +54,8 @@ class ContentServices
                 }
 
 
-                if(!empty($type['resize_array'])){
-                    $resize_array = $this->resizeArray($type);
+                $resize_array = $this->resizeArray($type);
+                if(!empty($resize_array)){
                     foreach($resize_array as $arr ){
                         $resizedImage = Image::make($path)->resize($arr[0], $arr[1], function ($constraint) {
                             $constraint->aspectRatio();
