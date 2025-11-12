@@ -25,7 +25,7 @@
 
           <ul class="menu-content">
 
-            <li @if($type->active =='dashboard') class="active" @endif><a href="{{route('content-list','top_banner')}}" class="menu-item">Künye</a></li>
+            <li @if($type->active =='dashboard') class="active" @endif><a href="{{route('content-list','top_banner')}}" class="menu-item">Künye {{ $type->active }}</a></li>
 
             <li><a href="{{route('content-list','slider')}}" class="menu-item">Slider  </a></li>
             <li><a href="{{route('content-list','slider_second')}}" class="menu-item">Slider#2</a></li>

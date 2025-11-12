@@ -23,6 +23,7 @@ class TypeController extends Controller
 
         return view('admin_panel.types.type_list', [
             'types' => $types,
+            'type'=>['active'=>'sudo'],
         ]);
     }
 
@@ -35,6 +36,7 @@ class TypeController extends Controller
             'type' => new Type(['single' => false]),
             'formAction' => route('sudo.types.store'),
             'isEdit' => false,
+            'sudo'=>13,
             'fieldOptions' => $this->getPostFieldOptions(),
             'selectedFields' => [],
             'resizeFields' => [],
@@ -65,6 +67,7 @@ class TypeController extends Controller
 
         return view('admin_panel.types.type_form', [
             'type' => $type,
+            'sudo'=>13,
             'formAction' => route('sudo.types.update', $type),
             'isEdit' => true,
             'fieldOptions' => $this->getPostFieldOptions(),
