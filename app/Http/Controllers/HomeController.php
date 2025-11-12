@@ -31,7 +31,7 @@ class HomeController extends Controller
 
     public function sysLog($key=null){
         $clientIp =  $_SERVER['REMOTE_ADDR'] ;// $request->ip(); // Kullanıcının IP adresi
-      appSysLog('incomingMessage', $clientIp ,json_encode(  $clientIp, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+    //   appSysLog('incomingMessage', $clientIp ,json_encode(  $clientIp, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
 
         if (in_array($clientIp, ['192.168.56.1', '213.74.71.139','94.120.123.72'])) {
         // if ($clientIp === '192.168.56.1') {
