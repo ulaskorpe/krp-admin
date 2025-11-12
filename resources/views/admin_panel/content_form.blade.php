@@ -4,10 +4,9 @@
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.12.6/css/selectize.bootstrap3.min.css" />
 
-@if(in_array('content',$fields))
-<link rel="stylesheet" type="text/css" href="{{url('/robust-assets/css/rte_theme_default.css')}}">
-
- @endif
+@if(in_array('content',$fields) || in_array('content_2',$fields))
+<link rel="stylesheet" type="text/css" href="{{url('/richtexteditor/rte_theme_default.css')}}">
+@endif
 
 @endsection
 @section('content')
@@ -140,8 +139,10 @@
 
 @if(in_array('content',$fields) || in_array('content_2',$fields))
 
-<script src="{{url('/assets/js/rte.js')}}" type="text/javascript"></script>
-<script src="{{url('/assets/js/all_plugins.js')}}" type="text/javascript"></script>
+
+<script src="{{url('/richtexteditor/rte.js')}}" type="text/javascript"></script>
+<script src="{{url('/richtexteditor/plugins/all_plugins.js')}}" type="text/javascript"></script>
+
 @endif
     <!-- /build-->
 <script>
@@ -160,48 +161,36 @@ $(document).ready(function() {
         });
     });
 
-@if(in_array('content',$fields))
+    @if(in_array('content',$fields) || in_array('content_2',$fields))
+let editorContentInstance = null;
+let editorContent2Instance = null;
 
-// var editor1cfg = {}
-// editor1cfg.toolbar = "basic";
+document.addEventListener('DOMContentLoaded', function () {
+    const contentTextarea = document.getElementById('content');
+    if (contentTextarea) {
+        editorContentInstance = new RichTextEditor(contentTextarea);
+    }
 
-// var editor1 =  new RichTextEditor("#div_editor1", { skin: "rounded-corner", toolbar: "default" });
-
-// function fillblog(){
-//     var content =editor1.getHTMLCode();//editor1.get('#div_editor1').getContent();//
-//     document.getElementById('content').value =content;
-// }
-
-@endif
-
-
-@if(in_array('content_2',$fields))
-
-// var editor2cfg = {}
-// editor2cfg.toolbar = "basic";
-
-// var editor2 =  new RichTextEditor("#div_editor2", { skin: "rounded-corner", toolbar: "default" });
-
-
-
-@endif
+    const content2Textarea = document.getElementById('content_2');
+    if (content2Textarea) {
+        editorContent2Instance = new RichTextEditor(content2Textarea);
+    }
+});
 
 
 function fillblog(){
 
-    @if(in_array('content_2',$fields))
-
-    // var content =editor2.getHTMLCode();//editor1.get('#div_editor1').getContent();//
-    // document.getElementById('content_2').value =content;
-    @endif
-
-    @if(in_array('content',$fields))
-
-        // var content =editor1.getHTMLCode();//editor1.get('#div_editor1').getContent();//
-        // document.getElementById('content').value =content;
-        @endif
+    if (editorContentInstance) {
+        editorContentInstance.syncToTextarea();
+    }
+    if (editorContent2Instance) {
+        editorContent2Instance.syncToTextarea();
+    }
 }
 
+@else
+function fillblog(){}
+@endif
 
 @if(in_array('image',$fields))
 document.getElementById('image').addEventListener('change', function(event) {
@@ -306,6 +295,7 @@ async function formSubmit() {
 
 
 let error = false;
+fillblog();
 @foreach($fields as $field)
     @if(  !in_array($field,['image','second_image','third_image','forth_image','fifth_image','tags','youtube_video']))
 
