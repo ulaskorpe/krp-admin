@@ -4,6 +4,8 @@ use App\Http\Controllers\ContentController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\Admin\TypeController as AdminTypeController;
+
 
 Route::group(['prefix'=>'admin-panel' ],function (){
     Route::get('/remember-me',[AuthController::class, 'remember_me'])->name('remember-me');
@@ -52,8 +54,12 @@ Route::group(['prefix'=>'admin-panel' ],function (){
         Route::post('/logout',[AuthController::class,'logout'])->name('logout');
 
 
-        Route:: group([ 'middleware'=>['checkSudo'],'prefix'=>'sudo'],function (){
-                // todo create sudo routes here
+        Route:: group([
+            'middleware' => ['checkSudo'],
+            'prefix' => 'sudo',
+            'as' => 'sudo.'
+        ],function (){
+                Route::resource('types', AdminTypeController::class)->except(['show']);
         });
 
 

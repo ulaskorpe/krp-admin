@@ -11,8 +11,15 @@ class Type extends Model
     use HasFactory,SoftDeletes;
 
 
-    protected $fillable = ['name','slug','fields','resize_array','single','chidren'];
-
+    protected $fillable = [
+        'name',
+        'slug',
+        'fields',
+        'resize_array',
+        'single',
+        'children',
+        'active',
+    ];
     /**
      * A type has many posts.
      */
