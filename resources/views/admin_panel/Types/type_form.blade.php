@@ -45,14 +45,34 @@
                                 <input type="text" name="slug" id="slug" class="form-control" value="{{ old('slug', $type->slug) }}" placeholder="Otomatik oluşturmak için boş bırakabilirsiniz">
                             </div>
                         </div>
+                        @php
+                        $fieldOptions = $fieldOptions ?? [];
+                        $selectedFields = collect(old('fields', $selectedFields ?? []))
+                            ->map(fn ($field) => trim($field))
+                            ->filter()
+                            ->values()
+                            ->all();
+                    @endphp
 
                         <div class="row form-group">
                             <div class="col col-md-3">
-                                <label for="fields" class="form-control-label"><b>Alanlar</b></label>
+                                <label class="form-control-label"><b>Alanlar</b></label>
                             </div>
                             <div class="col-12 col-md-9">
-                                <textarea name="fields" id="fields" rows="4" class="form-control" placeholder="Örn: 'title','content','image'">{{ old('fields', $type->fields) }}</textarea>
-                                <small class="form-text text-muted">Post içerikleri için kullanılacak alanları virgülle ayırarak girin.</small>
+                                <div class="row">
+                                    @foreach ($fieldOptions as $field)
+                                        @php
+                                            $fieldId = 'field_' . \Illuminate\Support\Str::slug($field, '_');
+                                        @endphp
+                                        <div class="col-md-4 col-sm-6 mb-2">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" name="fields[]" id="{{ $fieldId }}" value="{{ $field }}" {{ in_array($field, $selectedFields, true) ? 'checked' : '' }}>
+                                                <label class="form-check-label" for="{{ $fieldId }}">{{ $field }}</label>
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                </div>
+                                <small class="form-text text-muted">Post içerikleri için kullanılacak alanları seçin.</small>
                             </div>
                         </div>
 
