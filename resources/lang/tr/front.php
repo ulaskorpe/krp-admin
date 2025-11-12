@@ -92,7 +92,7 @@ return [
     'sss'=>'Sıkça Sorulan Sorular',
     'how_can_we_help'=>'Nasıl Yardımcı Olabiliriz?',
     'our_services_txt'=> 'Ut sapien nunc fermentum nulla',
-    'submit_message'=> 'Mesajınızı İletin',     'title' => 'Martı Bilgisayar - Antalya',
+    'submit_message'=> 'Mesajınızı İletin',
     'happy_customers'=>'Mutlu Müşteriler',
     'reviews'=>'Yorumlar',
 
